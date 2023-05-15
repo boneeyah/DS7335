@@ -1,6 +1,6 @@
 from collections import Counter
 import numpy as np
-from itertools import permutations
+from itertools import combinations
 import matplotlib.pyplot as plt
 
 
@@ -23,11 +23,22 @@ print(W_count)
 
 # plot color counts
 #first find all unique colors
-colors = set()
+colors = set() # using set, no set order since sets are not sorted
 for i in range(len(flower_orders)):
-    for j in range(len(flower_orders[i])):
-        a_set = set(flower_orders[i].replace("/"," ").split())
+    for j in flower_orders[i]:
+        a_set = set(j.replace("/"," ").split())
         colors = colors.union(a_set)
+print(colors)
+
+# plot color counts
+#first find all unique colors
+colors = list() # using list, sorted by order of appearance
+for i in flower_orders:
+    a_list = list(i.replace("/"," ").split())
+    for k in a_list:
+        if k not in colors:
+            colors.append(k)
+print(colors)
 
 # find counts for each color
 color_count = {}
@@ -37,10 +48,44 @@ for j in colors:
         if list(order_count.keys())[i].replace("/"," ").count(j)>0:
             a_count = np.add(a_count,list(order_count.values())[i])
             color_count.update({j:a_count.item()})
+print(color_count)            
 
 # plot colors
 plt.bar(list(color_count.keys()),list(color_count.values()))
 plt.show()
 
-p = list(permutations(colors,2))
-print(p)
+
+def rank_n_order(input_list,n):
+    color_list = list()
+    full_perm = list()
+    
+    # iterate through each element in the list, split colors, and find combinations
+    for i in input_list:
+        a_list = list(i.replace("/"," ").split())
+        a_perm = list(combinations(a_list,n))
+        full_perm.extend(a_perm)
+        for k in a_list:
+            if k not in color_list:
+                color_list.append(k)
+
+    #create a dictionary with each possible combination 
+    color_dict = {}
+    for i in full_perm:
+        a_dict = {i:full_perm.count(i)}
+        color_dict.update(a_dict)
+    return(dict(
+        sorted(
+            color_dict.items(),
+            key = lambda x:x[1],
+            reverse=True
+    )
+    )
+    )
+
+rank2 = rank_n_order(flower_orders,2)
+print(rank2)
+print(len(rank2))
+            
+rank3 = rank_n_order(flower_orders,3)
+print(rank3)
+print(len(rank3))
