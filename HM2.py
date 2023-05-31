@@ -36,8 +36,8 @@ def run(clf_dict, data):
                 clf = key(**a_dict)
                 clf.fit(M[train_index], L[train_index])
                 pred = clf.predict(M[test_index])
-                ret.update({idx:{'clf':key,
-                                 'model':clf,
+                ret.update({idx:{'clf':type(key()).__name__,
+                                 'params':a_dict,
                                  'train_index': train_index,
                                  'test_index': test_index,
                                  'accuracy':accuracy_score(L[test_index],pred)}})
@@ -48,15 +48,11 @@ a_dict = {RandomForestClassifier:{'n_estimators':[10,100,1000],'max_depth':[1000
           LogisticRegression:{'penalty':['l1','l2'],'C':[.1,1,10],'solver':['liblinear','saga'],'max_iter':[6000]},
           AdaBoostClassifier:{'learning_rate':[.5,1,2],'n_estimators':[25,50,100]}}
 results = run(a_dict, data)
-#print(results)
+print(results)
 
-X = []
-y = []
-for i in results.keys():
-    scores = results.get(i).get('accuracy')
-    y.append(scores)
-    X.append(i)
-print(X,y)
+feat = []
+dept = []
+est = []
 
 
 
