@@ -59,7 +59,9 @@ for i in a_dict.keys():
         if vals.get('model') == type(i()).__name__:
             accu.append(vals.get('accuracy'))
             params.append(key)
-    print(plt.plot(params,accu))
+    plt.plot(params,accu)
+    plt.title('Accuracy by fit - {}'.format(type(i()).__name__))
+    plt.show()
 
 
 #plt.boxplot(rf_accu)
