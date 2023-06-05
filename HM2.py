@@ -25,11 +25,7 @@ def run(clf_dict, data):
     M, L, n_folds = data # unpack data container
     kf = KFold(n_splits=n_folds) # Establish the cross validation
     ret = {} ####### switch back to dictionary of dictionaries # classic explication of results
-    #idx = 0
-    clf_list = []
-    kfolds_list = []
-    params_list = []
-    accuracy_list = []
+    idx = 0
     for key in clf_dict.keys():
         for ids, (train_index, test_index) in enumerate(kf.split(M, L)):
         # will take the product of the hyperparameter dictionary
@@ -40,15 +36,14 @@ def run(clf_dict, data):
                 clf = key(**a_dict)
                 clf.fit(M[train_index], L[train_index])
                 pred = clf.predict(M[test_index])
-                clf_list.append(type(key()).__name__)
-                kfolds_list.append(ids)
-                params_list.append(a_dict)
-                accuracy_list.append(accuracy_score(L[test_index],pred))
-                #idx +=1
-    ret.update({'kfold':kfolds_list,
-                'clf':clf_list,
-                'params':params_list,
-                'accuracy':accuracy_list})
+                #clf_list.append(type(key()).__name__)
+                #kfolds_list.append(ids)
+                #params_list.append(a_dict)
+                #accuracy_list.append(accuracy_score(L[test_index],pred))
+                ret.update({idx:{'model':type(key()).__name__,
+                     'params':a_dict,
+                     'accuracy':accuracy_score(L[test_index],pred)}})
+                idx +=1
     return ret
 
 a_dict = {RandomForestClassifier:{'n_estimators':[10,100,1000],'max_depth':[1000,None],'max_features':['sqrt','log2']},
@@ -57,26 +52,18 @@ a_dict = {RandomForestClassifier:{'n_estimators':[10,100,1000],'max_depth':[1000
 results = run(a_dict, data)
 #print(results)
 
-unique_params_rf = []
-for ids,clfs in enumerate(list(results.get('clf'))):
-    if clfs == 'RandomForestClassifier':
-        if list(results.get('params'))[ids] not in unique_params_rf:
-            unique_params_rf.append(list(results.get('params'))[ids])
-#print(unique_params_rf)
+for i in a_dict.keys():
+    accu = []
+    params = []
+    for key, vals in zip(results.keys(),results.values()):
+        if vals.get('model') == type(i()).__name__:
+            accu.append(vals.get('accuracy'))
+            params.append(key)
+    print(plt.plot(params,accu))
 
-rf_accu = []
-rf_params = []
-for i in unique_params_rf:
-    mean = []
-    for ids, clfs in enumerate(list(results.get('clf'))):
-        if clfs == 'RandomForestClassifier':
-            if list(results.get('params'))[ids] == i:
-                mean.append(list(results.get('accuracy'))[ids])
-    rf_accu.append(np.mean(mean))
-    rf_params.append(str(i))
 
-print(rf_accu)
-print(rf_params)
+#plt.boxplot(rf_accu)
+#plt.show()
 
 
 
