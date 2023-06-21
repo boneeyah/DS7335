@@ -24,6 +24,7 @@ users = {
 #get row names and col names
 index = list(users.keys())
 column_names = list(list(users.values())[0].keys())
+print('column ids: {}\n row ids: {}\n'.format(column_names,index))
 
 #build empty mat
 M_people = np.zeros((len(index),len(column_names)))
@@ -48,6 +49,7 @@ restaurants  = {'Los Tacos':{'distance' : 2, 'novelty' : 1, 'cost': 7, 'average 
 r_index = list(restaurants.keys())
 r_cols = list(list(users.values())[0].keys())
 
+print('\n restaurant names: {}'.format(r_index))
 # Transform the restaurant data into a matrix (M_resturants) using the same column index.
 M_restaurants = np.zeros((len(r_index),len(column_names)))
 for name in r_index:
@@ -83,28 +85,41 @@ A = M_people[index.index('Frank')]
 comb_frank = np.sum(A*M_restaurants, axis=1)
 print('\n-------Linear Combination for Frank---------\n')
 print(comb_frank)
-print('highest value is {}, for restaurant {}'.format(np.max(comb_frank),r_index[np.argmax(comb_frank)]))
+print('highest value is {}, for restaurant {}\n'.format(np.max(comb_frank),r_index[np.argmax(comb_frank)]))
+
+# Next, compute a new matrix (M_usr_x_rest  i.e. an user by restaurant) from all people.  What does the a_ij matrix represent?
+# resulting matrix will be of shape (num_users, num_restaurants)
+M_usr_x_rest = np.zeros((M_people.shape[0],M_restaurants.shape[0]))
+for person in index:
+    #get linear combination each
+    M_usr_x_rest[index.index(person)] = np.sum(M_people[index.index(person)]*M_restaurants, axis=1)
+print('\n----------M_usr_x_rest----------\n')
+print(M_usr_x_rest)
+
+
+# Sum all columns in M_usr_x_rest to get the optimal restaurant for all users.  What do the entries represent?
+totals = np.zeros(M_usr_x_rest.shape[1])
+for col_index in range(M_usr_x_rest.shape[1]):
+    totals[col_index] = np.sum(M_usr_x_rest.T[col_index])
+print('\n------------column totals------------\n')
+print(totals)
+    
+# Now convert each row in the M_usr_x_rest into a ranking for each user and call it M_usr_x_rest_rank.   Do the same as above to generate the optimal restaurant choice.  
+M_usr_x_rest_rank = np.argsort(M_usr_x_rest)
+print('\nM_usr_x_test_rank\n')
+print(M_usr_x_rest_rank)
+
+#find the optimal choice
+total_rank = np.zeros(M_usr_x_rest_rank.shape[1])
+for col_index in range(M_usr_x_rest_rank.shape[1]):
+    total_rank[col_index] = np.sum(M_usr_x_rest_rank.T[col_index])
+print('\n-------rank totals-------\n')
+print(total_rank)
+
+# Why is there a difference between the two?  What problem arrives?  What does it represent in the real world?
 
 
 
-
-
-
-
-# Decision Making With Matrices
-
-# This is a pretty simple assignment.  You will do something you do everyday, but today it will be with matrix manipulations. 
-
-# The problem is: you and your work friends are trying to decide where to go for lunch. You have to pick a restaurant that’s best for everyone.  Then you should decide if you should split into two groups so everyone is happier.  
-
-# Despite the simplicity of the process you will need to make decisions regarding how to process the data.
-  
-# This process was thoroughly investigated in the operation research community.  This approach can prove helpful on any number of decision making problems that are currently not leveraging machine learning.  
-
-# You asked your 10 work friends to answer a survey. They gave you back the following dictionary object.  
-# Transform the user data into a matrix ( M_people). Keep track of column and row IDs.   
-
-# Next you collected data from an internet website. You got the following information.
 
 
 
